@@ -3,7 +3,7 @@
     <Header :crumbs="[{ link: `/post/${id}`, text: 'post' }]" />
     <div class="margined">
       <Loading v-if="$fetchState.pending" />
-      <Post v-if="!$fetchState.pending && post && !error" v-bind:post="post" />
+      <PostSP v-if="!$fetchState.pending && post && !error" v-bind:post="post" />
       <Error
         v-if="error"
         :error="error.title"
@@ -38,13 +38,7 @@ export default {
   },
   async fetch() {
     var postRes = await fetch(
-      `https://scratchdb.lefty.one/search/indexes/forum_posts/search?filter=id=${this.id}`,
-      {
-        headers: {
-          authorization:
-            "Bearer 3396f61ef5b02abf801096be5f0b0ee620de304dd92fc6045aeb99539cd0bec4",
-        },
-      }
+      `https://api.scratchpost.quuq.dev/search/posts?limit=1&post=${this.id}`,
     ).catch((err) => {
       this.error = {
         title: "Network Error",
@@ -53,14 +47,14 @@ export default {
     });
     var postData = await postRes.json();
 
-    if (!postData?.hits[0]) {
+    if (!postData[0]) {
       return (this.error = {
         title: "Post not found",
         details: "The requested post could not be found.",
       });
     }
 
-    this.post = postData.hits[0];
+    this.post = postData[0];
   },
   fetchOnServer: false,
 };
